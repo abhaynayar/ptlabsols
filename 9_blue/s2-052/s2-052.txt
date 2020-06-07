@@ -1,0 +1,18 @@
+Introduction
+
+This course details how to gain code execution when a Struts application is vulnerable to s2-052. This vulnerability has already been widely exploited in the wild and is easily "worm-able". Therefore, it's essential that you know how to test for it.
+Struts s2-052
+
+Struts s2-052 impacts the following versions of Struts:
+
+    Struts 2.1.2 to 2.3.33 (inclusive)
+    Struts 2.5 to 2.5.12 (inclusive)
+
+The issue comes from a lack of filtering on the deserialization class used by the REST plugin. Struts uses Xstream with a lot of filtering for deserialization in multiple places, however this filtering was not in place for the REST plugin.
+The payload
+
+The payload has been packaged in a lot of tools already.
+
+Conclusion
+
+This exercise explained how to gain code execution when a Struts application is vulnerable to s2-052. When you are coming across a Struts application, it's essential that you test for this issue (as well as s2-045. I hope you enjoyed learning with PentesterLab.

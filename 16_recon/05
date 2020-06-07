@@ -1,0 +1,4 @@
+$ ffuf -w common.txt -u https://hackycorp.com/FUZZ
+http://hackycorp.com/startpage/
+498621b0-17fe-4ebb-8324-3de7743fea51
+

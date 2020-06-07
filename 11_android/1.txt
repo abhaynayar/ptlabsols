@@ -1,0 +1,5 @@
+go to directory with apk
+> apktool d Android01.apk [-f]
+go to newly created folder Android01
+go to res/strings.xml
+find the key and score!

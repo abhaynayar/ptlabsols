@@ -1,0 +1,53 @@
+on unix/linux systems, tomcat cannot be run on port 80 unless you give root access to the application server (tomcat), which is not a good idea since tomcat does not drop privileges and will be running as root (as opposed to apache which drops privileges during startup). however, to be available for most users, the server needs to be available on port 80, that is one of the reasons people use apache to "proxy" the request to tomcat. this configuration can also be used to:
+
+> serve static content directly from apache and limit tomcat's load;
+> load balance requests between two or more tomcat servers.
+
+~~~~~~~~~~~~~~~~~~~
+architecture
+
+the apache and tomcat servers can be on the same server or on different servers, this can be confusing once you gain commands execution on the tomcat server and realize that its configuration does not match what you see on the apache's end.
+
+there are two common ways to "proxy" requests from apache to tomcat:
+
+> http_proxy: the requests are forwarded to tomcat using the http protocol;
+> ajp13: the requests are forwarded to tomcat using the ajp13 protocol. this configuration is used in this exercise using the apache module mod_jk.
+
+you should look into cve-2007-0450 and cve-2007-1860, these vulnerabilities impact old versions of tomcat/mod_jk and can potentially allow an attacker to gain access to the tomcat manager even if it is not directly exposed by apache.
+
+here, the page's title gives away that tomcat is involved in this web stack, however, the http headers only give information on the apache server in front of it:
+
+% telnet vulnerable 80
+connected to vulnerable.
+escape character is '^]'.
+get / http/1.0
+
+http/1.1 200 ok
+date: wed, 26 dec 2012 08:48:22 gmt
+server: apache/2.2.16 (debian)
+[...]
+
+
+~~~~~~~~~~~~~~~~~~~~
+retrieving tomcat version
+
+It is always a good idea to retrieve the version of Tomcat to check if it is affected by any vulnerability. You can retrieve the version by accessing a non-existing page and generate a 404 error page
+
+~~~~~~~~~~~~~~~~~~~~
+attacking axis2
+
+axis2 is a project from the apache foundation, it allows developers to create web services in c and in java.
+
+by default, axis2 gets deployed in /axis2/ (when developers use axis2.war), you can easily retrieve a list of the available services by visiting the page http://vulnerable/axis2/services/listservices
+
+if we did not know that the server was hosting a web service using axis2, we could try to use a directory buster like wfuzz to find out. however, wfuzz's default words lists don't contain axis2, that is why it is always a good idea to keep your own list with paths of common applications and frameworks.
+
+~~~~~~~~~~~~~~~~~~~~
+
+retrieving information from the wsdl
+
+the web services description language describes the functionalities offered by a web service. a wsdl description of a web service (xml based) provides the methods that can be called, what parameters they expect and what values they will return.
+
+the wsdl information can be accessed by clicking the service's name in the listservices page or directly using the following url: http://vulnerable/axis2/services/proxyservice?wsdl.
+
+
