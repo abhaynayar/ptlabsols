@@ -1,3 +1,0 @@
-sudo apt install ruby-full
-gem install webrick
-alias web="ruby -run -ehttpd . -p3000" 

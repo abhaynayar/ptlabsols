@@ -1,0 +1,45 @@
+___________________________________________________________________
+
+authentication
+___________________________________________________________________
+
+#1
+guessable cookies
+___________________________________________________________________
+
+#2
+md5 cookies
+___________________________________________________________________
+
+#3
+
+the trick here comes from the fact that the comparison when you 
+create a user is done programmatically (i.e.: in ruby) but when 
+the user's details get retrieved, the comparison is done by the 
+database. by default, mysql (with the type varchar) will perform 
+a case insensitive comparison: "admin" and "admin" are the same 
+value.
+___________________________________________________________________
+
+#4
+
+this check can also be bypassed based on the way mysql performs 
+string comparison: mysql ignores trailing spaces (i.e.: 
+pentesterlab and pentesterlab[space] are equals). using the same 
+method as above, you should be able to pretend to be logged in as 
+the user admin.
+
+a good way to prevent this issue is to tell the database that the 
+username is a primary key. this method is, for example, used in 
+tomcat documentation to use a sql backend as a realm.
+___________________________________________________________________
+
+#5
+
+here the issue comes from the way the user gets redirected back 
+to the login page. the developer forgot to stop the execution 
+after redirecting users to the login page. by carefully 
+inspecting the responses sent back by the server, you should be 
+able to get the key.
+___________________________________________________________________
+

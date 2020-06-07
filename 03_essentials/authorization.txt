@@ -1,0 +1,109 @@
+___________________________________________________________________
+
+authorization
+___________________________________________________________________
+
+#1
+
+once you are logged in, you can start accessing information and 
+see the pattern used: /infos/1, /infos/2. if you keep 
+incrementing the number in the url, you can access information 
+from the other users.
+___________________________________________________________________
+
+#2
+
+in this example, you can access the information using a method 
+similar to the one seen previously. you cannot just directly 
+access the information, however you can see that you are now able 
+to edit information, and you can use this feature to access 
+information from other users just by incrementing the number in 
+the url.
+___________________________________________________________________
+
+#3
+
+in this example, you can see an example of a classic mistake with 
+modern frameworks. here most of the code is generated 
+automatically and access to different formats (html, json) for 
+the same database record is also done automatically.
+
+for example, by accessing /users/1, you will see an html page 
+with the first user's details. however the scoring key has been 
+masked.
+
+fortunately, you should be able to access the json representation 
+of this user's details by modifying the url.
+___________________________________________________________________
+
+#4
+
+object-relational mapping (orm)
+for example, in ruby (using activerecord):
+@user = user.find_by_name('pentesterlab')
+@user = user.create(myhash)
+[...]
+@user.update_attributes(anotherhash)
+
+unfortunately, this useful feature comes with a security price, 
+if a developer did not correctly ensure that attributes of the 
+object @user were protected, an attacker could arbitrary 
+overwrite any of these attributes. in this section, we will see 
+some common examples of these types of issues: mass-assignment.
+
+in this example, you can register a user.
+the application has two levels of privileges:
+
+    user.
+    admin.
+
+the admin privilege is set using the attribute admin on the 
+object user. if you look closely at the format used by the web 
+application: user[username] and user[password], you should be 
+able to find a way to get admin access. three methods can be used:
+
+    modify the page directly using a browser extension.
+    save the page and modify offline to create a page that will 
+send the right payload to the right url.
+    use a proxy to intercept the legitimate request and add your 
+parameter (fastest option).
+
+> user[admin]=true
+___________________________________________________________________
+
+#4
+
+> user[admin]=
+> user[admin]=1
+___________________________________________________________________
+
+#6
+
+by convention (can be changed programmatically) when a developer 
+uses activerecord (ruby-on-rails' most common data mapper), and a 
+class organisation has multiple user, the relation is managed 
+using a field organisation_id inside the user class:
+
+the following code is used in ruby:
+
+class user < activerecord::base
+  belongs_to :organisation
+end
+
+class organisation < activerecord::base
+  has_many :users
+end
+
+you can guess the fact that organisation is used by visiting the 
+organisation page and looking at the url. you will see that the 
+class is probably named organisation. and therefore the key in 
+the users table is likely to be organisation_id.
+
+ruby-on-rails enforces "convention" over "configuration" which 
+really helps to guess class names and attributes' name...
+
+using this information, you should be able to set your current 
+organisation to get access to the "key".
+
+> user[organisation_id]=1
+___________________________________________________________________

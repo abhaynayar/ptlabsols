@@ -1,0 +1,40 @@
+___________________________________________________________________
+
+ldap
+___________________________________________________________________
+
+#1
+
+some ldap servers authorise null bind
+
+to get the bind with 2 null values, you will need to completely remove this parameter from the query. if you keep something like username=&password= in the url, these values will not work, since they won't be null; instead, they will be empty.
+
+this is an important check to perform on all login forms that you will test in the future, even if the backend is not ldap-based.
+___________________________________________________________________
+
+#2
+
+ldap filters
+
+(|(cn=[input1])(cn=[input2])) to get records matching [input1] or [input2]
+
+ &: (&(cn=[input1])(userpassword=[input2])) to get records for which the cn matches [input1] and the password matches [input2].
+
+as you can see, the boolean logic is located at the beginning of the filter. since you're likely to inject after it, it's not always possible (depending on the ldap server) to inject logic inside the filter, if it's just (cn=[input]).
+
+ldap uses the wildcard * character very often, to match any values
+
+as with other injections, we will need to remove anything added by the server-side code. we can get rid of the end of the filter, using a null byte (encoded as %00).
+
+that the filter probably looks like:
+(&(cn=[input1])(userpassword=hash[input2]))
+
+ldap supports several formats: `{cleartext}`, `{md5}`, `{smd5}` (salted md5), `{sha}`, `{ssha}` (salted sha1), `{crypt}` for storing passwords.
+
+since [input2] is hashed, we cannot use it to inject our payload. 
+
+final payload:
+(&(cn=`hacker)(cn=*))%00`)(userpassword=hash[input2]))
+
+in most cases, ldap injection will allow only you to bypass authentication and authorisation checks. retrieving arbitrary data (as opposed to just getting more results) is often really challenging or impossible.
+___________________________________________________________________

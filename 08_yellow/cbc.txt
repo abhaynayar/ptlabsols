@@ -1,0 +1,36 @@
+cipher block chaining
+
+create a username similar to the desired username
+
+admin1
+admin1
+
+auth=Jm2QtH%2BxGGg6JYIqpj%2FBuNKxFY9sJypa
+auth=Me4hX1WiZnySaMPQ785tLMxQHj2b1dVh
+
+adminissocool
+asdf
+
+auth=3VINY5nZC8K%2FC2t19PX6pFH44Vo1cZj37WEoyn8CF7g%3D
+
+cdmin
+test
+
+auth=v3kuGH8lSO89e4MrcRD8v9wFrrI5iWnz
+
+0	bf	79	2e	18	7f	25	48	ef	3d	7b	83	2b	71	10	fc	bf	¿y.%Hï={+qü¿
+1	dc	05	ae	b2	39	89	69	f3	--	--	--	--	--	--	--	--	Ü®²9ió
+
+auth > url decode > base64 decode
+keep in mind that not all cbc implementation will give you access to the iv. in some cases, the iv will be hardcoded.
+
+once you have the block size, it's likely that the first block is the iv.
+
+after decoding the cookie, you can then extract the iv, and brute-force the byte (first byte of the iv if you used a username like bdmin or xdmin) you need to change until you become admin. in order to limit the amount of brute-force you will need, it's recommended to use a username like bdmin or zdmin. this will allow you to only have to tamper with the first byte to become admin.
+
+>>> hex(0xbf ^ ord('a') ^ ord('c'))
+'0xbd'
+
+replace 0xbf in cookie and resend it as encoded base64.
+
+done.

