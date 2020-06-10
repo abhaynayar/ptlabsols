@@ -1,4 +1,0 @@
-ctf badge
-
-CVE-2015-3224:
-Rails 4.0 and 4.1 X-Forwarded-For:localhost on 404 -> RCE

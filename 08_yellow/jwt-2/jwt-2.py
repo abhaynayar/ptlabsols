@@ -26,3 +26,4 @@ import hashlib
 
 signature = base64.urlsafe_b64encode(hmac.new(pub, data, digestmod=hashlib.sha256).digest())
 print(data+"."+signature)
+

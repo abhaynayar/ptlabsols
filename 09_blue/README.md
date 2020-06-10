@@ -131,5 +131,10 @@ $ python3 jwt-7.py
 
 ### CVE-2018-0114
 
+- https://nvd.nist.gov/vuln/detail/CVE-2018-0114
+- JWT allows users to embed public keys (using the `jwk` value) inside the header of the token.
+- Some vulnerable libraries may trust the key you're providing even if the app doesn't use jwk.
+
+
 
 

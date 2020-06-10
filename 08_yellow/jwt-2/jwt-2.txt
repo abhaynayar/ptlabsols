@@ -1,4 +1,4 @@
-egister:
+register:
 
 test
 test
