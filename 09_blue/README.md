@@ -129,12 +129,24 @@ $ python3 jwt-7.py
 # 62e50e5a-32f5-430d-aeda-ac2d30bab335
 ```
 
-### CVE-2018-0114
+### CVE-2018-0114 (Cisco node-jose)
 
+- This issue impacts version prior to 0.11.
 - https://nvd.nist.gov/vuln/detail/CVE-2018-0114
 - JWT allows users to embed public keys (using the `jwk` value) inside the header of the token.
 - Some vulnerable libraries may trust the key you're providing even if the app doesn't use jwk.
 
+doing some research
+
+- https://tools.ietf.org/html/rfc7517#section-3
+- https://connect2id.com/products/nimbus-jose-jwt/examples/jwk-generation#rsa
+- https://jwcrypto.readthedocs.io/en/latest/jwk.html#examples
+
+can't write my own exploit
+
+```
+$ python3 other.py
+```
 
 
 

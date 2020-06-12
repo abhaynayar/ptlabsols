@@ -23,3 +23,5 @@ python werkzeug.py ptl-63e89638-8b2f2181.libcurl.so ls
 - CBC is an encryption mode in which the message is split into blocks of X bytes length and each block is XORed with the previous encrypted block. The result is then encrypted.
 - Padding can be done in multiple ways. A common way is to use PKCS7. With PKCS7, the padding will be composed of the same number: the number of bytes missing. For example, if the cleartext is missing 2 bytes, the padding will be \x02\x02.
 - During the cleanup of the padding, if an invalid padding triggers a detectable behavior, you have a padding oracle. The detectable behavior can be an error, a lack of results, or a slower response.
+
+

