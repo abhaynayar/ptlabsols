@@ -23,7 +23,6 @@ cat tmp/attachment
 save the entire email as .eml file
 view the email in any email client
 
-
 #11 POP3
 #12 IMAP
 #13 HTTP
@@ -32,3 +31,4 @@ view the email in any email client
 #21 deflate:  printf "\x1f\x8b\x08\x00\x00\x00\x00\x00"  | cat - pcap_21.deflate | gunzip
 #22 chunked encoding
 #23	connection: keep-alive
+

