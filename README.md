@@ -13,19 +13,19 @@ Notes and solutions
 9. [Blue](09_blue)
 10. [CTF](10_ctf) \*
 11. [Android](11_android)
-12. [Orange](12_orange)
-13. Auth
-14. Green
-15. Brown
+12. [Orange](12_orange) \*
+13. [Auth](13_auth) \*
+14. [Green](14_green) \*
+15. Brown \*
 16. [Recon](16_recon) \*
-17. Code review
-18. Java serialize
+17. Code review \*
+18. Java serialize \*
 
 ## Certificates
 Certificates can be found under [this](00_certs) directory.
 
 ## To-do
 
-- [ ] Add descriptions for badges for future access.
-- [ ] Add README.md to {yellow, serialize, white} badge.
+- [ ] Add descriptions for badges for future access using new account.
+- [ ] Add README.md to {essential, white, yellow, serialize, white} badge.
 
