@@ -18,7 +18,7 @@ Notes and solutions
 14. [Green](14_green) \*
 15. Brown \*
 16. [Recon](16_recon) \*
-17. Code review \*
+17. [Code review](17_review) \*
 18. Java serialize \*
 
 ## Certificates
