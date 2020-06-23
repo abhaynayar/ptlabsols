@@ -27,18 +27,6 @@ GraphiQL interface
 
 ```
 {
-  __schema {
-    queryType {
-      name
-    }
-  }
-}
-```
-
-2
-
-```
-{
   __type(name: "Query") {
     name
     kind
@@ -91,5 +79,20 @@ Solution
   }
 }
 ```
+
+### GraphQL: SQL Injection
+
+```
+{"operationName":"projects","variables":{"offset":10},"query":"query projects($offset:Int) { projects(offset:$offset, limit:10) { id name description __typename  }}"}
+```
+
+```
+{"query":"{__schema{queryType { name }}}"}
+```
+
+```
+{"query":"{__schema{queryType { name,fields {name} }}}"}
+```
+
 
 
